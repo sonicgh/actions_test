@@ -18,6 +18,7 @@ def  combine_and_capitalize(str1, str2):
 def  add_numbers(a, b):
     return a + b
 
-
+def  subtract_numbers(a, b):
+    return a - b
 
 
