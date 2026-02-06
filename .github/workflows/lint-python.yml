@@ -14,16 +14,14 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Run Ruff
+      - name: Run Ruff (Linter)
         uses: astral-sh/ruff-action@v3
         with:
-          # This runs 'ruff check' by default. 
-          # You can add '--fix' to args if you want it to suggest fixes,
-          # but usually, for CI, you just want it to pass/fail.
+          # This shows code logic suggestions
           args: "check --diff"
-          
-      # Optional: Add a step to check formatting as well
+
       - name: Check Formatting
         uses: astral-sh/ruff-action@v3
         with:
-          args: "format --check"
+          # This shows exactly which spaces/indentation to change
+          args: "format --diff"
