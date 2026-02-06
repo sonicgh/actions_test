@@ -31,3 +31,11 @@ jobs:
         with:
           args: "format --check ${{ steps.changed-files.outputs.all_changed_files }}"
 
+      # Step 2: Visual Style Check (Formatting)
+      - name: Run Ruff Format Check
+        if: steps.changed-files.outputs.any_changed == 'true'
+        uses: astral-sh/ruff-action@v1
+        with:
+          # Added --preview to handle the unstable output-format warning
+          args: "format --check --preview ${{ steps.changed-files.outputs.all_changed_files }}"
+
