@@ -4,65 +4,30 @@ on:
     types: [opened, synchronize, reopened]
 
 jobs:
-  ruff-lint:
+  ruff:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Code
+      - name: Checkout code
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Get changed Python files
+      - name: Get changed files
         id: changed-files
-        run: |
-          BASE_SHA="${{ github.event.pull_request.base.sha }}"
-          HEAD_SHA="${{ github.event.pull_request.head.sha }}"
-          
-          if [ -z "$BASE_SHA" ] || [ -z "$HEAD_SHA" ]; then
-            echo "changed=false" >> $GITHUB_OUTPUT
-            exit 0
-          fi
-          
-          # Triple-dot diff finds all changes since the branch diverged from base
-          CHANGED_FILES=$(git diff --name-only --diff-filter=ACMR $BASE_SHA...$HEAD_SHA | grep '\.py$' || true)
-          
-          if [ -z "$CHANGED_FILES" ]; then
-            echo "changed=false" >> $GITHUB_OUTPUT
-          else
-            echo "changed=true" >> $GITHUB_OUTPUT
-            echo "files<<EOF" >> $GITHUB_OUTPUT
-            echo "$CHANGED_FILES" >> $GITHUB_OUTPUT
-            echo "EOF" >> $GITHUB_OUTPUT
-          fi
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: tj-actions/changed-files@v44
         with:
-          python-version: '3.12'
+          files: |
+            **/*.py
 
-      - name: Cache Ruff
-        if: steps.changed-files.outputs.changed == 'true'
-        uses: actions/cache@v4
+      - name: Run Ruff Lint
+        if: steps.changed-files.outputs.any_changed == 'true'
+        uses: astral-sh/ruff-action@v1
         with:
-          path: ~/.cache/pip
-          # Use the version number in the key so the cache refreshes if you update Ruff
-          key: ${{ runner.os }}-pip-ruff-0.6.0
-          restore-keys: |
-            ${{ runner.os }}-pip-
+          args: "check ${{ steps.changed-files.outputs.all_changed_files }}"
 
-      - name: Install Ruff
-        if: steps.changed-files.outputs.changed == 'true'
-        run: |
-          python -m pip install --upgrade pip
-          pip install ruff==0.6.0
+      - name: Run Ruff Format Check
+        if: steps.changed-files.outputs.any_changed == 'true'
+        uses: astral-sh/ruff-action@v1
+        with:
+          args: "format --check ${{ steps.changed-files.outputs.all_changed_files }}"
 
-      - name: Ruff – Python linting
-        if: steps.changed-files.outputs.changed == 'true'
-        run: |
-          # --force-exclude ensures ruff respects any exclude patterns in pyproject.toml
-          echo "${{ steps.changed-files.outputs.files }}" | xargs -d '\n' ruff check --force-exclude
-
-      - name: Ruff – Formatting check
-        if: steps.changed-files.outputs.changed == 'true'
-        run: |
-          echo "${{ steps.changed-files.outputs.files }}" | xargs -d '\n' ruff format --check
