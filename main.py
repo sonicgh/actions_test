@@ -8,6 +8,16 @@ a =  "hello"
 print(a.capitalize())
 b =  "world"
 
+
+
 def  combine_and_capitalize(str1, str2):
     combined = f"{str1} {str2}"
     return combined.capitalize()
+
+
+def  add_numbers(a, b):
+    return a + b
+
+
+
+
