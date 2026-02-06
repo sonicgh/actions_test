@@ -27,6 +27,14 @@ def  add_numbers(a, b):
     return a + b
 
 def  subtract_numbers(a, b):
+    """
+    Subtracts two numbers from each other.
+    Args:
+        a: The first number.
+        b: The second number.
+    Returns:
+        The difference between the two numbers.
+    """
     return a - b
 
 def  multiply_numbers(a, b):
