@@ -19,8 +19,15 @@ jobs:
           files: |
             **/*.py
 
-      - name: Run Ruff
+      - name: Run Ruff Lint
         if: steps.changed-files.outputs.any_changed == 'true'
         uses: astral-sh/ruff-action@v1
         with:
           args: "check ${{ steps.changed-files.outputs.all_changed_files }}"
+
+      - name: Run Ruff Format Check
+        if: steps.changed-files.outputs.any_changed == 'true'
+        uses: astral-sh/ruff-action@v1
+        with:
+          args: "format --check ${{ steps.changed-files.outputs.all_changed_files }}"
+
