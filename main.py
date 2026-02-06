@@ -38,6 +38,14 @@ def  subtract_numbers(a, b):
     return a - b
 
 def  multiply_numbers(a, b):
+    """
+    Multiplies two numbers together.
+    Args:
+        a: The first number.
+        b: The second number.
+    Returns:
+        The product of the two numbers.
+    """
     return a * b
 
 def   divide_numbers(a, b):
