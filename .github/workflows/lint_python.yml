@@ -22,7 +22,6 @@ jobs:
         if: steps.changed-files.outputs.any_changed == 'true'
         uses: astral-sh/ruff-action@v1
         with:
-          # This tells Ruff to only scan the files changed in the PR
           args: "check"
           src: "${{ steps.changed-files.outputs.all_changed_files }}"
 

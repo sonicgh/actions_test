@@ -6,3 +6,8 @@ for i in range(5):
 
 a =  "hello"
 print(a.capitalize())
+b =  "world"
+
+def  combine_and_capitalize(str1, str2):
+    combined = f"{str1} {str2}"
+    return combined.capitalize()
