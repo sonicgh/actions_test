@@ -1,68 +1,29 @@
-name: Python Linting
-on: 
+name: Ruff Linting
+
+on:
   pull_request:
+    # Triggers on open, update (synchronize), and reopen by default
     types: [opened, synchronize, reopened]
+    branches:
+      - main  # Adjust this to your default branch name
 
 jobs:
-  ruff-lint:
+  ruff:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Code
+      - name: Checkout code
         uses: actions/checkout@v4
+
+      - name: Run Ruff
+        uses: astral-sh/ruff-action@v3
         with:
-          fetch-depth: 0
-
-      - name: Get changed Python files
-        id: changed-files
-        run: |
-          BASE_SHA="${{ github.event.pull_request.base.sha }}"
-          HEAD_SHA="${{ github.event.pull_request.head.sha }}"
+          # This runs 'ruff check' by default. 
+          # You can add '--fix' to args if you want it to suggest fixes,
+          # but usually, for CI, you just want it to pass/fail.
+          args: "check"
           
-          if [ -z "$BASE_SHA" ] || [ -z "$HEAD_SHA" ]; then
-            echo "changed=false" >> $GITHUB_OUTPUT
-            exit 0
-          fi
-          
-          # Triple-dot diff finds all changes since the branch diverged from base
-          CHANGED_FILES=$(git diff --name-only --diff-filter=ACMR $BASE_SHA...$HEAD_SHA | grep '\.py$' || true)
-          
-          if [ -z "$CHANGED_FILES" ]; then
-            echo "changed=false" >> $GITHUB_OUTPUT
-          else
-            echo "changed=true" >> $GITHUB_OUTPUT
-            echo "files<<EOF" >> $GITHUB_OUTPUT
-            echo "$CHANGED_FILES" >> $GITHUB_OUTPUT
-            echo "EOF" >> $GITHUB_OUTPUT
-          fi
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
+      # Optional: Add a step to check formatting as well
+      - name: Check Formatting
+        uses: astral-sh/ruff-action@v3
         with:
-          python-version: '3.12'
-
-      - name: Cache Ruff
-        if: steps.changed-files.outputs.changed == 'true'
-        uses: actions/cache@v4
-        with:
-          path: ~/.cache/pip
-          # Use the version number in the key so the cache refreshes if you update Ruff
-          key: ${{ runner.os }}-pip-ruff-0.6.0
-          restore-keys: |
-            ${{ runner.os }}-pip-
-
-      - name: Install Ruff
-        if: steps.changed-files.outputs.changed == 'true'
-        run: |
-          python -m pip install --upgrade pip
-          pip install ruff==0.6.0
-
-      - name: Ruff – Python linting
-        if: steps.changed-files.outputs.changed == 'true'
-        run: |
-          # --force-exclude ensures ruff respects any exclude patterns in pyproject.toml
-          echo "${{ steps.changed-files.outputs.files }}" | xargs -d '\n' ruff check --force-exclude
-
-      - name: Ruff – Formatting check
-        if: steps.changed-files.outputs.changed == 'true'
-        run: |
-          echo "${{ steps.changed-files.outputs.files }}" | xargs -d '\n' ruff format --check
+          args: "format --check"
