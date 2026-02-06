@@ -20,7 +20,7 @@ jobs:
           # This runs 'ruff check' by default. 
           # You can add '--fix' to args if you want it to suggest fixes,
           # but usually, for CI, you just want it to pass/fail.
-          args: "check"
+          args: "check --diff"
           
       # Optional: Add a step to check formatting as well
       - name: Check Formatting
